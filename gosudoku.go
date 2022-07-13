@@ -19,12 +19,19 @@ func main() {
 
 	// solvePuzzle(&puzzleSet[24])
 
+	// prettyPrintPuzzle(puzzleSet[24])
 	var successCount int = 0
 	var averageScore float64 = 0.0
 
 	for _, pz := range puzzleSet {
 		solvePuzzle(&pz)
-		fmt.Println(pz.score)
+
+		if globalDebugMode {
+			fmt.Printf("Puzzle: %v\t\tScore: %v\n", pz.name, pz.score)
+			prettyPrintPuzzle(pz)
+			fmt.Print("\n\n")
+		}
+
 		if pz.score == 100.0 {
 			successCount++
 		}

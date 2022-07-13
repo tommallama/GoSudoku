@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 )
 
 // TODO: test these with a function instead of lookup tables for speed
@@ -96,13 +95,6 @@ func solvePuzzle(p *Puzzle) {
 	pds.puzzleSol = p.puzzleStart
 	pds.score = calculateCompletionScore(pds.puzzleSol)
 	var tempscore = pds.score
-
-	if globalDebugMode {
-		// We won't calc init score during scoring run for speed
-		fmt.Printf("Puzzle Name: %s\n", pds.name)
-		fmt.Printf("Initial Score: %.2f%%\n", pds.score)
-		printPuzzle(pds.puzzleSol)
-	}
 
 	// This is essentially a do while loop
 	for ok := true; ok; ok = pds.score < 100 {
@@ -207,15 +199,6 @@ func solvePuzzle(p *Puzzle) {
 		}
 	}
 
-	if globalDebugMode {
-		fmt.Printf("Final Score: %.2f%%\n", pds.score)
-		printPuzzle(pds.puzzleSol)
-
-		// for i, v := range pds.possibles {
-		// 	fmt.Println("idx: ", i, "pos: ", v)
-		// }
-	}
-
 	p.puzzleSol = pds.puzzleSol
 	p.score = pds.score
 }
@@ -290,35 +273,48 @@ func contains(s []uint8, e uint8) bool {
 	return false
 }
 
-func printPuzzle(p [81]uint8) {
-	for j := 0; j < 9; j++ {
-		if j%3 == 0 {
-			fmt.Println("-------------------------")
+func prettyPrintPuzzle(p Puzzle) {
+	var hBar string = "-------------------------"
+	for i := 0; i < 9; i++ {
+		if i%3 == 0 {
+			fmt.Printf("%s\t%s\n", hBar, hBar)
 		}
-		for k := 0; k < 3; k++ {
-			var a string = "_"
-			var b string = "_"
-			var c string = "_"
-			if p[j*9+k*3] != 0 {
-				a = strconv.FormatUint(uint64(p[j*9+k*3]), 10)
-			}
-			if p[j*9+k*3+1] != 0 {
-				b = strconv.FormatUint(uint64(p[j*9+k*3+1]), 10)
-			}
-			if p[j*9+k*3+2] != 0 {
-				c = strconv.FormatUint(uint64(p[j*9+k*3+2]), 10)
-			}
 
-			fmt.Printf("| %s %s %s ", a, b, c)
+		var startRow = []byte{'_', '_', '_', '_', '_', '_', '_', '_', '_'}
+		var solRow = []byte{'_', '_', '_', '_', '_', '_', '_', '_', '_'}
+
+		for j := 0; j < 9; j++ {
+			if p.puzzleStart[i*9+j] != 0 {
+				startRow[j] = p.puzzleStart[i*9+j] + 48 // 48 is ascii offset to 0
+			}
+			if p.puzzleSol[i*9+j] != 0 {
+				solRow[j] = p.puzzleSol[i*9+j] + 48 // 48 is ascii offset to 0
+			}
 		}
-		fmt.Printf("|\n")
+
+		for s, v := range startRow {
+			if s%3 == 0 {
+				fmt.Print("| ")
+			}
+			fmt.Printf("%c ", v)
+			if s == 8 {
+				fmt.Print("|\t")
+			}
+		}
+
+		for s, v := range solRow {
+			if s%3 == 0 {
+				fmt.Print("| ")
+			}
+			fmt.Printf("%c ", v)
+			if s == 8 {
+				fmt.Print("|\n")
+			}
+		}
 	}
-	fmt.Println("-------------------------")
-}
 
-// func printDetailedCore(p PuzzleDataset) {
-// 	var possibles
-// }
+	fmt.Printf("%s\t%s\n", hBar, hBar)
+}
 
 func calculateCompletionScore(p [81]uint8) float32 {
 	var count uint8 = 0
